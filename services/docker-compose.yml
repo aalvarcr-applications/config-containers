@@ -1,0 +1,228 @@
+version: '3.9'
+services:
+  config-server:
+    container_name: config-server
+    build:
+      context: .
+      dockerfile: ./config-server/Dockerfile
+    image: config-server:latest
+    ports:
+      - '8888:8888'
+    networks:
+      - bootcamp
+  discovery-service:
+    container_name: discovery-service
+    build:
+      context: .
+      dockerfile: ./discovery-service/Dockerfile
+    image: discovery-service:latest
+    ports:
+      - '7001:7001'
+    networks:
+      - bootcamp
+    depends_on:
+      - config-server
+  api-gateway:
+    container_name: api-gateway
+    build:
+      context: .
+      dockerfile: ./api-gateway/Dockerfile
+    image: api-gateway:latest
+    ports:
+      - '7000:7000'
+    networks:
+      - bootcamp
+    depends_on:
+      - config-server
+      - discovery-service
+  mongodb-service:
+    image: mongo:5.0
+    ports:
+      - '27017:27017'
+    container_name: mongodb-service
+    volumes:
+      - ./db/:/data/db
+    networks:
+      - bootcamp
+  redis-server:
+    image: redis
+    ports:
+      - '6379:6379'
+    container_name: redis-server
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - bootcamp
+  product-service:
+    container_name: product-service
+    build:
+      context: .
+      dockerfile: ./product-service/Dockerfile
+    depends_on:
+      - mongodb-service
+      - config-server
+      - discovery-service
+    image: product-service:latest
+    ports:
+      - '7003:7003'
+    networks:
+      - bootcamp
+  customer-service:
+    container_name: customer-service
+    build:
+      context: .
+      dockerfile: ./customer-service/Dockerfile
+    depends_on:
+      - mongodb-service
+      - config-server
+      - discovery-service
+    image: customer-service:latest
+    ports:
+      - '7004:7004'
+    networks:
+      - bootcamp
+  account-service:
+    container_name: account-service
+    build:
+      context: .
+      dockerfile: ./account-service/Dockerfile
+    depends_on:
+      - mongodb-service
+      - config-server
+      - discovery-service
+    image: account-service:latest
+    ports:
+      - '7005:7005'
+    networks:
+      - bootcamp
+  credit-service:
+    container_name: credit-service
+    build:
+      context: .
+      dockerfile: ./credits-service/Dockerfile
+    depends_on:
+      - mongodb-service
+      - config-server
+      - discovery-service
+    image: credit-service:latest
+    ports:
+      - '7006:7006'
+    networks:
+      - bootcamp
+  report-service:
+    container_name: report-service
+    build:
+      context: .
+      dockerfile: ./report-service/Dockerfile
+    depends_on:
+      - config-server
+      - discovery-service
+    image: report-service:latest
+    ports:
+      - '7007:7007'
+    networks:
+      - bootcamp
+  card-service:
+    container_name: card-service
+    build:
+      context: .
+      dockerfile: ./card-service/Dockerfile
+    depends_on:
+      - mongodb-service
+      - config-server
+      - discovery-service
+    image: card-service:latest
+    ports:
+      - '7008:7008'
+    networks:
+      - bootcamp
+  wallet-service:
+    container_name: wallet-service
+    build:
+      context: .
+      dockerfile: ./wallet-service/Dockerfile
+    depends_on:
+      - mongodb-service
+      - config-server
+      - discovery-service
+    image: wallet-service:latest
+    ports:
+      - '7009:7009'
+    networks:
+      - bootcamp
+  wallet-transaction-service:
+    container_name: wallet-transaction-service
+    build:
+      context: .
+      dockerfile: ./wallet-transaction-service/Dockerfile
+    depends_on:
+      - mongodb-service
+      - redis-server
+      - config-server
+      - discovery-service
+    image: wallet-transaction-service:latest
+    ports:
+      - '7010:7010'
+    networks:
+      - bootcamp
+  bootcoin-service:
+    container_name: bootcoin-service
+    build:
+      context: .
+      dockerfile: ./bootcoin-service/Dockerfile
+    depends_on:
+      - mongodb-service
+      - config-server
+      - discovery-service
+    image: bootcoin-service:latest
+    ports:
+      - '7011:7011'
+    networks:
+      - bootcamp
+  ad-bootcoin-service:
+    container_name: ad-bootcoin-service
+    build:
+      context: .
+      dockerfile: ./ad-bootcoin-service/Dockerfile
+    depends_on:
+      - mongodb-service
+      - redis-server
+      - config-server
+      - discovery-service
+    image: ad-bootcoin-service:latest
+    ports:
+      - '7012:7012'
+    networks:
+      - bootcamp
+  exchange-bootcoin-service:
+    container_name: exchange-bootcoin-service
+    build:
+      context: .
+      dockerfile: ./exchange-bootcoin-service/Dockerfile
+    depends_on:
+      - mongodb-service
+      - redis-server
+      - config-server
+      - discovery-service
+    image: exchange-bootcoin-service:latest
+    ports:
+      - '7013:7013'
+    networks:
+      - bootcamp
+  master-data-bootcoin-service:
+    container_name: master-data-bootcoin-service
+    build:
+      context: .
+      dockerfile: ./master-data-bootcoin-service/Dockerfile
+    depends_on:
+      - redis-server
+      - config-server
+      - discovery-service
+    image: master-data-bootcoin-service:latest
+    ports:
+      - '7014:7014'
+    networks:
+      - bootcamp
+networks:
+  bootcamp:
+    driver: bridge
